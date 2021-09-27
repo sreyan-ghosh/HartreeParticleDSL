@@ -37,3 +37,11 @@ class Backend(metaclass=ABCMeta):
     def initialisation_code(self, particle_count, filename):
         pass
 
+    def per_particle_loop_start(self, index_name):
+        pass
+
+    def per_particle_loop_end(self):
+        pass
+
+    def particle_access(self, index_name):
+        pass

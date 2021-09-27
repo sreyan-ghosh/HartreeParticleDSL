@@ -163,6 +163,16 @@ class C_AOS(Backend):
         self._main_visitor.visit(function)
 
     def gen_invoke(self, kernel_name, current_indent, indent, kernel_type):
+        '''
+        Generates the code for a specific invoke call
+        Currently ouputs to STDOUT
+
+        :param str kernel_name: Name of the kernel name to be generated.
+        :param int current_indent: The current indentation level of code.
+        :param int indent: The amount to indent for further indentation levels.
+        :param kernel_type: The type of the kernel to be invoked.
+        :type kernel_type: type
+        '''
         space = " "
         print(f"\n {space*current_indent}/* INVOKE generated for {kernel_name} */")
         if kernel_type == kernels.perpart_kernel_wrapper:
@@ -210,9 +220,27 @@ class C_AOS(Backend):
         print(f"{space*current_indent}/* End of INVOKE generated for {kernel_name} */\n")
 
     def initialisation_code(self, particle_count, filename):
+        '''
+        Returns the initialisation code for this system.
+
+        :param int particle_count: The particle count required for this job.
+        :param str filename: The filename required for this job
+
+        :returns: The initialisation code for this system.
+        :rtype: str
+        '''
         return self._input_module.call_input_c(particle_count, filename)
 
     def gen_particle(self, particle):
+        '''
+        Returns the code to setup the particle type in this module.
+
+        :param particle: The particle type to be generated as code.
+        :type particle: :py:class:`HartreeParticleDSL.HartreeParticleDSL.Particle` 
+
+        :returns: The particle code for this system.
+        :rtype: str
+        '''
         # Output the core part type
         output = ""
         output = output + "struct core_part_type{\n"
@@ -240,6 +268,15 @@ class C_AOS(Backend):
         return output
 
     def gen_config(self, config):
+        '''
+        Returns the code to setup the config type in this module.
+
+        :param particle: The particle type to be generated as code.
+        :type particle: :py:class:`HartreeParticleDSL.HartreeParticleDSL.Config` 
+
+        :returns: The config code for this system.
+        :rtype: str
+        '''
         # Output the space
         output = ""
         output = output + "struct space_type{\n"
@@ -266,17 +303,43 @@ class C_AOS(Backend):
         return output
 
     def cleanup(self, current_indent, *args, **kwargs):
+        '''
+        Returns the cleanup code for this system.
+
+        :param int current_indent: The current indentation level
+
+        :returns: Cleanup code for this system.
+        :rtype: str
+        '''
         rval = ""
         rval = " "*current_indent + "free(config);\n"
         rval = rval + " "*current_indent + "free(parts);\n"
         return rval
 
     def initialise(self,particle_count, filename, current_indent, **kwargs):
+        '''
+        Returns the initialisation code for this sytem.
+
+        :param int particle_count: The particle count for this system.
+        :param str filename: The filename for this system.
+        :param int current_indent: The current indentation for this system.
+
+        :returns: Initialisation code for this system.
+        :rtype: str
+        '''
         rval = " "*current_indent + "struct config_type* config = malloc(sizeof(struct config_type));\n"
         rval = rval + " "*current_indent + f"struct part* parts = {self._input_module.call_input_c(particle_count, filename)}\n"
         return rval
 
     def call_language_function(self,func_call, *args):
+        '''
+        Calls a language function from the visitors.
+
+        :param str func_call: The function call to be called for this language.
+        
+        :returns: The generated code from the language function call.
+        :rtype: str
+        '''
         string = ""
         try:
             code = compile("self." +func_call, '<string>', 'eval')
@@ -284,3 +347,29 @@ class C_AOS(Backend):
         except Exception as err:
             string = func_call
         return string
+
+    def per_particle_loop_start(self, index_name):
+        '''
+        Returns the code to start a per_particle loop.
+
+        :param str index_name: The name to use to index the loop
+
+        :returns: The code to start a per_particle loop.
+        :rtype: str
+        '''
+        loop = f"for( int {index_name} = 0; {index_name} < config->space.nparts"
+                f"; {index_name}++){\n"
+        return loop
+
+    def particle_access(self, index_name, element):
+        '''
+        Returns the code to access a particle for a given index and element
+
+        :param str index_name: The name of the index to access the particle
+        :param str element: The particle element to access
+
+        :returns: The code to access a particle
+        :rtype: str
+        '''
+        access = f"parts[{index_name}].{element}" 
+        return access

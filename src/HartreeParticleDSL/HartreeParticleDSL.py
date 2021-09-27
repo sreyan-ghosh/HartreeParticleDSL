@@ -58,6 +58,15 @@ class _HartreeParticleDSL():
         '''
         self._backend = backend
 
+    def get_backend(self):
+        '''
+        Returns the backend used by HartreeParticleDSL
+
+        :returns: The current backend
+        :type backend: :py:class:`HartreeParticleDSL.backends.base_backend.Backend`
+        '''
+        return self._backend
+
     def set_particle_type(self, part):
         '''
         Function to set the Particle type used by HartreeParticleDSL
@@ -227,6 +236,15 @@ def set_backend(backend):
     :type backend: :py:class:`HartreeParticleDSL.backends.base_backend.Backend`
     '''
     _HartreeParticleDSL.get_instance().set_backend(backend)
+
+def get_backend(self):
+    '''
+    Returns the backend used by HartreeParticleDSL
+
+    :returns: The current backend
+    :type backend: :py:class:`HartreeParticleDSL.backends.base_backend.Backend`
+    '''
+    return _HartreeParticleDSL.get_instance().get_backend()
 
 def set_io_modules(input_mod, output_mod):
     '''
